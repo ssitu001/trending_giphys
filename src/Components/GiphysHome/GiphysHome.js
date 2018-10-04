@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import GphApiClient from 'giphy-js-sdk-core';
 const client = new GphApiClient('njJKySvRX2tLcXayN5ep5vXmHoJ6h1It');
 
 import GiphyContainer from '../GiphyContainer/GiphyContainer';
-import Giphy from '../Giphy/Giphy';
 
 import { Container, Menu, Header, Visibility, Dropdown, Image, Input, Form } from 'semantic-ui-react'
 
@@ -73,7 +73,7 @@ class GiphysHome extends Component {
           >
             <Container text>
               <Menu.Item>
-                <Form onSubmit={this.handleSubmit}>
+                <Form onSubmit={_.debounce(this.handleSubmit, 1000, {leading: true})}>
                   <Input loading={loading} icon='user' placeholder="Search for your giphy" onChange={this.handleChange} value={this.state.searchValue}/>
                 </Form>
               </Menu.Item>
