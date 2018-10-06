@@ -5,14 +5,36 @@ const client = new GphApiClient('njJKySvRX2tLcXayN5ep5vXmHoJ6h1It');
 
 import GiphyContainer from '../GiphyContainer/GiphyContainer';
 
-import { Container, Menu, Header, Visibility, Dropdown, Image, Input, Form } from 'semantic-ui-react'
+import { Container, Menu, Header, Visibility, Button, Input, Form } from 'semantic-ui-react'
+
+const CONSTANTS = {
+  HOME: 'Home',
+  FAVORITES: 'Favorites'
+};
+
+const menuStyle = {
+  border: 'none',
+  borderRadius: 0,
+  boxShadow: 'none',
+  marginBottom: '1em',
+  marginTop: '4em',
+  transition: 'box-shadow 0.5s ease, padding 0.5s ease',
+}
+
+const fixedMenuStyle = {
+  backgroundColor: '#fff',
+  border: '1px solid #ddd',
+  boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.2)',
+}
 
 class GiphysHome extends Component {
   state = {
     searchValue: '',
     loading: false,
+    currentView: CONSTANTS.HOME,
     gifs: [],
-    favorites: []
+    favorites: [],
+    menuFixed: false,
   }
 
   componentDidMount() {
@@ -51,7 +73,7 @@ class GiphysHome extends Component {
 
   getStoredFavorites = () => JSON.parse(localStorage.getItem('favorites')) || {};
 
-  addFavoriteToLocalStorage = newFavorite => {
+  addFavoriteToLocalStorage = (newFavorite) => {
     if (localStorage) {
       const storedFavorites = this.getStoredFavorites();
 
@@ -62,13 +84,12 @@ class GiphysHome extends Component {
   removeFavoriteFromLocalStorage = (id) => {
     if (localStorage) {
       const storedFavorites = this.getStoredFavorites();
-      if (storedFavorites.id) {
-        delete storedFavorites.id;
+      if (storedFavorites[id]) {
+        delete storedFavorites[id];
       }
 
       localStorage.setItem('favorites', JSON.stringify(storedFavorites));
     }
-
   }
 
   isFavorite = (gifs) => {
@@ -78,6 +99,8 @@ class GiphysHome extends Component {
       return gifs.map(gif => {
         if (storedFavorites[gif.id]) {
           gif.isFavorite = true;
+        } else {
+          gif.isFavorite = false;
         }
         return gif;
       });
@@ -85,14 +108,16 @@ class GiphysHome extends Component {
   }
 
   addToFavorites = (gif) => {
+    gif.isFavorite = true;
     this.setState({ favorites: [ ...this.state.favorites, gif ] }, () => {
-     this.addFavoriteToLocalStorage(gif) 
+      this.addFavoriteToLocalStorage(gif); 
     });
   }
   
-  removeFromFavorites = (id) => {
-    this.setState({ favorites: this.state.favorites.filter(favorite => favorite.id === id) }, () => {
-      this.removeFavoriteFromLocalStorage(id);
+  removeFromFavorites = (gif) => {
+    gif.isFavorite = false;
+    this.setState({ favorites: this.state.favorites.filter(favorite => favorite.id === gif.id) }, () => {
+      this.removeFavoriteFromLocalStorage(gif.id);
     });
   }
 
@@ -108,16 +133,19 @@ class GiphysHome extends Component {
     });
   }
 
-  stickTopMenu = () => {
-    console.log('stick')
-  }
+  stickTopMenu = () => this.setState({ menuFixed: true });
 
-  unStickTopMenu = () => {
-    console.log('unstick')
+  unStickTopMenu = () => this.setState({ menuFixed: false });
+
+  get currentView() {
+    console.log('calld')
+    return this.state.currentView === CONSTANTS.HOME
+    ? this.state.gifs
+    : this.state.favorites
   }
 
   render() {
-    let {gifs, loading} = this.state;
+    let {gifs, favorites, loading, currentView, menuFixed} = this.state;
 
     return (
 
@@ -135,41 +163,38 @@ class GiphysHome extends Component {
         >
           <Menu
             borderless
-            // fixed={menuFixed && 'top'}
-            // style={menuFixed ? fixedMenuStyle : menuStyle}
+            fixed={menuFixed ? 'top' : null}
+            style={menuFixed ? fixedMenuStyle : menuStyle}
           >
             <Container text>
               <Menu.Item>
                 <Form onSubmit={_.debounce(this.handleSubmit, 300)}>
-                  <Input loading={loading} icon='user' placeholder="Search for your giphy" onChange={this.handleChange} value={this.state.searchValue}/>
+                  <Input loading={loading} icon='search' placeholder="Search for your giphy" onChange={this.handleChange} value={this.state.searchValue}/>
                 </Form>
               </Menu.Item>
 
               <Menu.Menu position='right'>
-                <Dropdown text='Placeholder' pointing className='link item'>
-                  <Dropdown.Menu>
-                    <Dropdown.Item>List Item</Dropdown.Item>
-                    <Dropdown.Item>List Item</Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Header>Header Item</Dropdown.Header>
-                    <Dropdown.Item>
-                      <i className='dropdown icon' />
-                      <span className='text'>Submenu</span>
-                      <Dropdown.Menu>
-                        <Dropdown.Item>List Item</Dropdown.Item>
-                        <Dropdown.Item>List Item</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown.Item>
-                    <Dropdown.Item>List Item</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+              <div>
+                <Button 
+                  active={true} 
+                  onClick={() => {this.setState({ currentView: CONSTANTS.HOME })}} 
+                  circular 
+                  icon='home' 
+                /> 
+                <Button 
+                  active={false} 
+                  onClick={() => {this.setState({ currentView: CONSTANTS.FAVORITES })}} 
+                  circular 
+                  icon='heart' 
+                /> 
+              </div>
               </Menu.Menu>
             </Container>
           </Menu>
         </Visibility>
         <Container>
           <GiphyContainer 
-            gifs={gifs}  
+            gifs={this.currentView}  
             style={{ overflowY: 'auto' }} 
             onScroll={this.handleScroll}
             addToFavorites={this.addToFavorites}
