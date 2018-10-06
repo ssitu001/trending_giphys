@@ -9,7 +9,8 @@ const GiphyContainer = ({ addToFavorites, removeFromFavorites, gifs }) => {
       let gifUrl = gif.images.original.gif_url;
       return (
         <Giphy 
-          toggleFavorite={gif.isFavorite ? removeFromFavorites : addToFavorites} 
+          toggleFavorite={gif.isFavorite ? removeFromFavorites : addToFavorites}
+          gif={gif} 
           gifUrl={gifUrl} 
           title={gif.title} 
           key={`${gif.id} + ${i}`}
@@ -18,11 +19,11 @@ const GiphyContainer = ({ addToFavorites, removeFromFavorites, gifs }) => {
     }) : [];
 
   return (
-      <Grid columns={4}>
-        <Grid.Row  stretched>
-          {giphy}
-        </Grid.Row>
-      </Grid>
+    <Grid columns={4}>
+      <Grid.Row  stretched>
+      {giphy}
+      </Grid.Row>
+    </Grid>
   )
 }
 
