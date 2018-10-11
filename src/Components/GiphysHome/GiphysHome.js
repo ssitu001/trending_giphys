@@ -148,7 +148,7 @@ class GiphysHome extends Component {
   
   removeFromFavorites = (gif) => {
     gif.isFavorite = false;
-    this.setState({ favorites: this.state.favorites.filter(favorite => favorite.id === gif.id) }, () => {
+    this.setState({ favorites: this.state.favorites.filter(favorite => favorite.id !== gif.id) }, () => {
       this.removeFavoriteFromLocalStorage(gif.id);
     });
   }
