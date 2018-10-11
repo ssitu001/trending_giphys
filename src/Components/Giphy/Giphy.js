@@ -1,56 +1,42 @@
-import React, { Component } from 'react';
-import { Grid, Card, Reveal, Rating} from 'semantic-ui-react'
+import React from 'react';
+import { getRandomColor } from '../../Utils/utils';
+import { Grid, Reveal, Rating, Image} from 'semantic-ui-react'
 
-
-class Giphy extends Component {
-  state = {
-    imageSrc: `https://media0.giphy.com/media/3oKIPvbc4P1bORkLzq/giphy.gif`,
-    imageLoaded: false,
-  }
-
-  componentWillMount() {
-    const originalSrc = this.props.gifUrl;
-    const originalImage = new Image();
-    originalImage.onload = () => {
-      this.setState({imageSrc: originalSrc, imageLoaded: true})
-    }
-    originalImage.onerror = () => {
-      //handle error later
-    }
-    originalImage.src = originalSrc;
-  }
-
-  toggleFavorites = () => {
-    const { toggleFavorite, gif } = this.props;
-    toggleFavorite(gif);
-  }
-
-  render() {
-    const { gifUrl, title, gif } = this.props;
-    const { imageSrc, imageLoaded } = this.state;
+const Giphy = ({
+  toggleFavorite, 
+  gif, 
+  gifUrl
+}) => {
     return (
-      <Grid.Column>
+      <Grid.Column 
+        mobile={16} 
+        tablet={8} 
+        computer={4} 
+        color={getRandomColor()}
+        textAlign='center'
+        verticalAlign='middle'
+      >
         <Reveal animated='small fade'>
           <Reveal.Content visible style={{pointerEvents: 'none'}}>
-            <img src={imageSrc} alt={title} style={{height: '250px'}}/>
+            <Image src={gifUrl} alt={gif.title} style={{height: '200px', width: '100%'}} centered fluid/>
           </Reveal.Content>
           <Reveal.Content hidden>
-            {
-              imageLoaded 
-              ? (<div style={{height: '250px', width: '250px'}}>
-                  <span>Add to favorites</span>
-                  <Rating icon='heart' defaultRating={gif.isFavorite ? 1 : 0} maxRating={1} onRate={this.toggleFavorites}/>
-                </div>)
-              : null  
-            }
+          <div style={{height: '200px'}}>
+            <span>Add to favorites</span>
+              <Rating 
+                icon='heart' 
+                defaultRating={gif.isFavorite ? 1 : 0} 
+                maxRating={1} 
+                onRate={() => toggleFavorite(gif)}
+              />
+            <div>
+              {gif.title}
+            </div>
+          </div>
           </Reveal.Content>
         </Reveal>
       </Grid.Column>
     )
-  }
 }
-
-
-
 
 export default Giphy;
