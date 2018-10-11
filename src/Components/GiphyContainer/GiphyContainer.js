@@ -3,26 +3,29 @@ import React from 'react';
 import Giphy from '../Giphy/Giphy';
 import { Grid } from 'semantic-ui-react'
 
-const GiphyContainer = ({ addToFavorites, removeFromFavorites, gifs }) => {
+const generateGiphy = (gifs, addToFavorites, removeFromFavorites) => {
+  return gifs.length ? gifs.map((gif) => {
+    let gifUrl = gif.images.original.gif_url;
+    return (
+      <Giphy 
+        toggleFavorite={gif.isFavorite ? removeFromFavorites : addToFavorites}
+        gif={gif} 
+        gifUrl={gifUrl} 
+        key={gif.id}
+      />
+    );
+  }) : [];
 
-   const giphy = gifs.length ? gifs.map((gif, i) => {
-      let gifUrl = gif.images.original.gif_url;
-      return (
-        <Giphy 
-          toggleFavorite={gif.isFavorite ? removeFromFavorites : addToFavorites}
-          gif={gif} 
-          gifUrl={gifUrl} 
-          title={gif.title} 
-          key={`${gif.id} + ${i}`}
-        />
-      );
-    }) : [];
+}
 
+const GiphyContainer = ({ 
+  addToFavorites, 
+  removeFromFavorites, 
+  gifs 
+}) => {
   return (
-    <Grid columns={4}>
-      <Grid.Row  stretched>
-      {giphy}
-      </Grid.Row>
+    <Grid stackable container>
+      { generateGiphy(gifs, addToFavorites, removeFromFavorites) }
     </Grid>
   )
 }
